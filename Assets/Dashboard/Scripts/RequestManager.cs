@@ -13,13 +13,14 @@ public class RequestManager : MonoBehaviour
     private void Start()
     {
         //StartCoroutine(GetAccessTocken(new AuthData("Unitydatastorage@gmail.com", "qwerty12345Q", "PASSWORD"), (login_data) => { Debug.Log(login_data.access_token); }));
-        StartCoroutine(GetRequest());
+        //StartCoroutine(GetRequest());
+        StartCoroutine(UpdateConfig());
     }
 
     IEnumerator GetRequest()
     {
-        UnityWebRequest webRequest = UnityWebRequest.Get(get_config_default_environment + "925390ba-f412-412d-af1e-dd5867ace799");
-        webRequest.SetRequestHeader("Authorization", "Bearer " + "ektV22aUMBvM_NoG7tJDPCDaf-UOmbdCHHo1sPuurHI009f");
+        UnityWebRequest webRequest = UnityWebRequest.Get(get_config_default_environment + "af54b501-0dc8-4a9e-8706-729936028bee");
+        webRequest.SetRequestHeader("Authorization", "Bearer " + "Aa23Yy_JKmoJzXUa9G8yxouJQHPBigKeM2faJ6eyJrA009f");
         yield return webRequest.SendWebRequest();
 
         Debug.Log(webRequest.downloadHandler.text);
@@ -45,6 +46,32 @@ public class RequestManager : MonoBehaviour
         else
         {
             loginData.Invoke(JsonUtility.FromJson<LoginData>(webRequest.downloadHandler.text));
+        }
+    }
+
+    IEnumerator UpdateConfig()
+    {
+        UnityWebRequest webRequest = new UnityWebRequest("https://remote-config-api.uca.cloud.unity3d.com/configs/98d3ac33-c102-4571-abf3-f9e971cc25ca?projectId=af54b501-0dc8-4a9e-8706-729936028bee", "PUT");
+        webRequest.SetRequestHeader("Authorization", "Bearer " + "Aa23Yy_JKmoJzXUa9G8yxouJQHPBigKeM2faJ6eyJrA009f");
+
+        string payload = JsonUtility.ToJson(new Payload(root.configs[0].type, root.configs[0].value));
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(payload);
+
+        webRequest.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        webRequest.downloadHandler = new DownloadHandlerBuffer();
+
+        webRequest.SetRequestHeader("Content-Type", "application/json");
+
+        yield return webRequest.SendWebRequest();
+
+        if (webRequest.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log(webRequest.error);
+        }
+        else
+        {
+            Debug.Log("success");
+            //loginData.Invoke(JsonUtility.FromJson<LoginData>(webRequest.downloadHandler.text));
         }
     }
 }
